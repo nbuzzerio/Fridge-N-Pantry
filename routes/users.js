@@ -1,23 +1,11 @@
-require('dotenv').config();
 const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
+const auth = require('../middleware/auth');
 const { User, validate } = require('../models/users');
 const _ = require('lodash');
-const jwt = require('jsonwebtoken');
 
-router.get('/me', async (req, res) => {
-    const token = req.header('x-auth-token');
-    if (!token) return res.status(401).send('Access denied. No token provided');
-
-    try {
-        const decoded = jwt.verify(token, process.env.jwtPrivateKey);
-        req.user = decoded;
-    }
-    catch(exception) {
-        res.status(400).send('Invalid token.')
-    }
-
+router.get('/me', auth, async (req, res) => {
     const user = await (await User.findById(req.user._id).select('_id name email'));
     res.send(user);
 });
