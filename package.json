@@ -1,0 +1,26 @@
+{
+  "name": "fridge-n-pantry",
+  "version": "1.0.0",
+  "description": "Application which helps you keep track of food you have in the house and easily restock with automated shopping lists.",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nbuzzerio/Fridge-N-Pantry.git"
+  },
+  "author": "Nicholas Buzzerio",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nbuzzerio/Fridge-N-Pantry/issues"
+  },
+  "homepage": "https://github.com/nbuzzerio/Fridge-N-Pantry#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.12.0",
+    "nodemon": "^2.0.7"
+  }
+}
