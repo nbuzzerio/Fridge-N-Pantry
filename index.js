@@ -1,6 +1,7 @@
 require('dotenv').config()
 const mongoose = require('mongoose');
 const households = require('./routes/households');
+const auth = require('./routes/auth');
 const users = require('./routes/users');
 const items = require('./routes/items');
 const express = require('express');
@@ -13,6 +14,7 @@ mongoose.connect(process.env.DB_URL, {useNewUrlParser: true, useUnifiedTopology:
 
 app.use(express.json());
 app.use('/api/households', households);
+app.use('/api/auth', auth);
 app.use('/api/users', users);
 app.use('/api/items', items);
 
