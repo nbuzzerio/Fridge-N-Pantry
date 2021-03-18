@@ -19,7 +19,6 @@ const storeSchema = new mongoose.Schema({
         minlength: 10,
         maxlength: 255,
         required: true,
-        unique: true
     },
     isleLocation: {
         type: Number,

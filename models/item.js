@@ -20,7 +20,7 @@ const Item = mongoose.model('Item', itemSchema);
 function validateItem(item) {
     const schema = Joi.object({
         name: Joi.string().min(3).max(50).required(),
-        itemLocation: Joi.array()
+        store: Joi.object().optional()
     });
     return schema.validate(item);
 }
