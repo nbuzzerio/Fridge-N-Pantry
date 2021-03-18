@@ -34,9 +34,8 @@ const storeSchema = new mongoose.Schema({
 function validateStore(store) {
     const schema = Joi.object({
         name: Joi.string().min(5).max(100).required,
-        name: Joi.string().min(5).max(100).required,
-        name: Joi.string().min(10).max(255).required,
-        name: Joi.number().min(0).max(255).required,
+        location: Joi.string().min(5).max(100).required,
+        isleLocation: Joi.number().min(0).max(255).required,
     });
     return schema.validate(store);
 }
