@@ -18,7 +18,7 @@ router.post('/', async (req, res) => {
         const { error } = validateStore(store);
         if (error) return res.status(400).send(error.details[0].message);
 
-        store.name_Location = store.name + '_' + store.location;
+        store.name_Location = store.name.toLowerCase() + '_' + store.location.toLowerCase();
     }
 
     const { error } = validateItem(req.body);
