@@ -14,43 +14,41 @@ router.get('/:id', (req, res) => {
 
 router.post('/', async (req, res) => {
     const store = req.body.store;
+    let name_Location;
     if (store) {
         const { error } = validateStore(store);
         if (error) return res.status(400).send(error.details[0].message);
 
-        store.name_Location = store.name.toLowerCase() + '_' + store.location.toLowerCase();
+        name_Location = store.name.toLowerCase() + '_' + store.location.toLowerCase();
     }
 
     const { error } = validateItem(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
     let item = await Item.findOne({name: req.body.name});
-
     if (item) {
-        const registeredLoc = item.itemLocation.find(location => { return location.name_Location === store.name_Location});
+        if (item.itemLocations.get(name_Location)) return res.status(400).send('Item is already registered to at that store');
 
-        if (registeredLoc) return res.status(400).send('Item is already registered to at that store');
-
-        item.itemLocation.push(store);
+        item.itemLocations.set(name_Location, store);
         await item.save()
 
     } else {
         item = new Item({
             name: req.body.name,
-            itemLocation: []
+            itemLocations: {}
         });
-        if (store) item.itemLocation.push(store);
+        if (store) item.itemLocations.set(name_Location, store);
         await item.save()
     }
 
     res.send(item)
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:itemId/:storeName', (req, res) => {
     res.send('This is the Items endpoint');
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:itemId/:storeName', (req, res) => {
     res.send('This is the Items endpoint');
 });
 

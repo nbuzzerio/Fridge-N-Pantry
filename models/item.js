@@ -10,8 +10,9 @@ const itemSchema = new mongoose.Schema({
         maxlength: 50,
         unique: true
     },
-    itemLocation: {
-        type: [storeSchema],
+    itemLocations: {
+        type: Map,
+        of: storeSchema
     }
 });
 
