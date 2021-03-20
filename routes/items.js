@@ -6,10 +6,8 @@ const asyncMiddleware = require('../middleware/asnycHandler');
 const { Item, validateItem } = require("../models/item");
 const { validateStore } = require("../models/store");
 const _ = require('lodash');
-const { response } = require('express');
 
 router.get('/:id', asyncMiddleware(async (req, res) => {
-
     const item = await Item.findOne({ _id: req.params.id });   
     if (!item) return res.status(400).send("Item does not exist");
 

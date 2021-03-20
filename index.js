@@ -1,13 +1,16 @@
 require('dotenv').config()
 const mongoose = require('mongoose');
+const winston = require('winston');
 const error = require ('./middleware/error');
 const auth = require('./routes/auth');
 const users = require('./routes/users');
 const items = require('./routes/items');
 const households = require('./routes/households');
 const express = require('express');
+const { response } = require('express');
 const app = express();
 
+winston.add(new winston.transports.File({ filename: 'logfile.log'}));
 
 mongoose.connect(process.env.DB_URL, {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true})
     .then(() => console.log('Connected to MongoDB...'))
