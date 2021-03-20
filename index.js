@@ -7,8 +7,12 @@ const users = require('./routes/users');
 const items = require('./routes/items');
 const households = require('./routes/households');
 const express = require('express');
-const { response } = require('express');
 const app = express();
+
+winston.exceptions.handle(new winston.transports.File({ filename: 'uncaughtExceptions.log'}));
+process.on('unhandledRejection', (exception => {
+    throw exception;
+}));
 
 winston.add(new winston.transports.File({ filename: 'logfile.log'}));
 
