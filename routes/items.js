@@ -5,12 +5,11 @@ const { Item, validateItem } = require("../models/item");
 const { validateStore } = require("../models/store");
 const _ = require('lodash');
 
-router.get('/:store', (req, res) => {
-    res.send('These are all the items at a store');
-});
+router.get('/:id', async (req, res) => {
+    const item = await Item.findOne({ _id: req.params.id });
+    if (!item) return res.status(400).send("Item does not exist");
 
-router.get('/:id', (req, res) => {
-    res.send('This is the Items endpoint');
+    res.send(item);
 });
 
 router.post('/', async (req, res) => {
