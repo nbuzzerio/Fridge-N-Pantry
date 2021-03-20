@@ -2,16 +2,17 @@ const mongoose = require('mongoose');
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
+const asyncMiddleware = require('../middleware/asnycHandler');
 const bcrypt = require('bcrypt');
 const { User, validate } = require('../models/users');
 const _ = require('lodash');
 
-router.get('/me', auth, async (req, res) => {
+router.get('/me', auth, asyncMiddleware(async (req, res) => {
     const user = await (await User.findById(req.user._id).select('_id name email'));
     res.send(user);
-});
+}));
 
-router.post('/', async (req, res) => {
+router.post('/', asyncMiddleware(async (req, res) => {
     const { error } = validate(req.body);
     if (error) return res.status(400).send(error.details[0].message);
 
@@ -27,6 +28,6 @@ router.post('/', async (req, res) => {
 
     const token = user.generateAuthToken();
     res.header('x-auth-token', token).send(_.pick(user, ['_id', 'name', 'email']));
-});
+}));
 
 module.exports = router;

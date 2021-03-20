@@ -1,9 +1,10 @@
 require('dotenv').config()
 const mongoose = require('mongoose');
-const households = require('./routes/households');
+const error = require ('./middleware/error');
 const auth = require('./routes/auth');
 const users = require('./routes/users');
 const items = require('./routes/items');
+const households = require('./routes/households');
 const express = require('express');
 const app = express();
 
@@ -17,6 +18,8 @@ app.use('/api/households', households);
 app.use('/api/auth', auth);
 app.use('/api/users', users);
 app.use('/api/items', items);
+
+app.use(error);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
