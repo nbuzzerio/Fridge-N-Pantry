@@ -8,7 +8,7 @@ const { User, validateUser } = require('../models/users');
 const _ = require('lodash');
 
 router.get('/me', auth, asyncMiddleware(async (req, res) => {
-    const user = await (await User.findById(req.user._id).select('_id name email'));
+    const user = await User.findById(req.user._id).select('_id name email');
     res.send(user);
 }));
 
