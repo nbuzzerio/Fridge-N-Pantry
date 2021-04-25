@@ -8,7 +8,8 @@ const itemSchema = new mongoose.Schema({
         required: true,
         minlength: 3,
         maxlength: 50,
-        unique: true
+        unique: true,
+        sparse:true
     },
     itemLocations: {
         type: Map,
