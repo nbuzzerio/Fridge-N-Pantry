@@ -3,26 +3,33 @@ const express = require('express');
 const router = express.Router();
 const asyncMiddleware = require('../middleware/asnycHandler');
 const { User} = require('../models/users');
-const { Household, validateHousehold } = require('../models/household');
+const { Household, validateHousehold, validateHouseholdObjectId } = require('../models/household');
 const _ = require('lodash');
 const auth = require('../middleware/auth');
+
+const hideUserData = async (household) => {
+    let householdData = _.pick(household, ['household', 'members', 'stores', 'list', 'pastItems']);
+    const memberNames = await Promise.all(
+        householdData.members.map(async (member) => {
+            const memberName = await User.findById(member.memberId).select('name -_id');
+            return memberName.name;
+        })
+    )
+    householdData.members = memberNames;
+    return householdData;
+}
 
 router.get('/', auth, asyncMiddleware( async (req, res) => {
     const userId = await User.findById(req.user._id).select('_id');
     if (!userId) return res.status(400).send('User is invalid.')
 
-    let household = await Household.findOne({household: req.body.household});
+    const { error } = validateHouseholdObjectId(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+
+    let household = await Household.findOne({_id: req.body.household_id});
     if (!household) return res.status(400).send('Household does not exist.');
     
-    let householdData = _.pick(household, ['household', 'members', 'stores', 'list', 'pastItems']);
-    
-    const memberNames = await Promise.all(
-        householdData.members.map(async (member) => {
-            const memberName = await User.findById(member.memberId).select('name -_id');
-            return memberName.name
-        })
-    )
-    householdData.members = memberNames;
+    const householdData = await hideUserData(household);
 
     res.send(_.pick(householdData, ['household', 'members', 'stores', 'list', 'pastItems'])); 
 }));
@@ -47,6 +54,28 @@ router.post('/', auth, asyncMiddleware( async (req, res) => {
     await household.save();
     
     res.send(_.pick(household, ['household', 'members', 'stores', 'list', 'pastItems']));
+}));
+
+router.put('/join', auth, asyncMiddleware( async (req, res) => {
+    const member = {
+        memberId: req.user._id,
+        isAdmin: true
+    };
+    const { error } = validateHouseholdObjectId(req.body);
+    if (error) return res.status(400).send(error.details[0].message);
+    
+    const householdId =  mongoose.Types.ObjectId(req.body.household_id);
+
+    let household = await Household.findOne({_id: householdId});
+    if (!household) return res.status(400).send('Household does not exist.');
+
+    if (!household.members.find(member => member.memberId.toString() === req.user._id.toString())) {
+        household.members.push(member);
+        await household.save();
+    }
+    const householdData = await hideUserData(household);
+
+    res.send(_.pick(householdData, ['household', 'members', 'stores', 'list', 'pastItems']));
 }));
 
 module.exports = router;

@@ -59,10 +59,13 @@ const Household = mongoose.model("Household", householdSchema);
 function validateHousehold(household) {
   const schema = Joi.object({
     household: Joi.string().min(5).max(50).required(),
-    members: Joi.object({
-      memberId: Joi.objectId().required(),
-      isAdmin: Joi.boolean().required()
-    })
+  });
+  return schema.validate(household);
+}
+
+function validateHouseholdObjectId(household) {
+  const schema = Joi.object({
+    household_id: Joi.objectId().required(),
   });
   return schema.validate(household);
 }
@@ -70,3 +73,4 @@ function validateHousehold(household) {
 exports.householdSchema = householdSchema;
 exports.Household = Household;
 exports.validateHousehold = validateHousehold;
+exports.validateHouseholdObjectId = validateHouseholdObjectId;
