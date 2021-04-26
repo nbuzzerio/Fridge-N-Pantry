@@ -41,7 +41,7 @@ const householdSchema = new mongoose.Schema({
     required: true,
   },
   stores: {
-    type: [storeSchema],
+    type: [],
     required: true,
   },
   list: {

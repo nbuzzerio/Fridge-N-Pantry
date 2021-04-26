@@ -22,6 +22,8 @@ const storeSchema = new mongoose.Schema({
     }
 });
 
+const Store = mongoose.model("Store", storeSchema);
+
 function validateStore(store) {
     const schema = Joi.object({
         name: Joi.string().min(5).max(100).required(),
@@ -31,5 +33,15 @@ function validateStore(store) {
     return schema.validate(store);
 }
 
+function validateStoreName(store) {
+    const schema = Joi.object({
+        name: Joi.string().min(5).max(100).required(),
+        location: Joi.string().min(5).max(100).required(),
+    });
+    return schema.validate(store);
+}
+
+exports.Store = Store;
 exports.storeSchema = storeSchema;
 exports.validateStore = validateStore;
+exports.validateStoreName = validateStoreName;
