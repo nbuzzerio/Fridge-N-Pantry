@@ -8,6 +8,7 @@ const { Item, validateItem } = require("../models/item");
 const { Store, validateStore, validateStoreName } = require("../models/store");
 const _ = require('lodash');
 const auth = require('../middleware/auth');
+const checkValidHousehold = require('../middleware/checkValidHousehold');
 
 const hideUserData = async (household) => {
     let householdData = _.pick(household, ['household', 'members', 'stores', 'list', 'pastItems']);
@@ -58,41 +59,38 @@ router.post('/', auth, asyncMiddleware( async (req, res) => {
     res.send(_.pick(household, ['household', 'members', 'stores', 'list', 'pastItems']));
 }));
 
-router.put('/join', auth, asyncMiddleware( async (req, res) => {
+router.put('/member', auth, checkValidHousehold, asyncMiddleware( async (req, res) => {
     const member = {
         memberId: req.user._id,
         isAdmin: true
     };
-    const { error } = validateHouseholdObjectId(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
-    
-    const householdId =  mongoose.Types.ObjectId(req.body.household_id);
-
-    let household = await Household.findOne({_id: householdId});
-    if (!household) return res.status(400).send('Household does not exist.');
-
+    const household = req.household;
     if (!household.members.find(member => member.memberId.toString() === req.user._id.toString())) {
         household.members.push(member);
         await household.save();
     }
     const householdData = await hideUserData(household);
-
     res.send(_.pick(householdData, ['household', 'members', 'stores', 'list', 'pastItems']));
 }));
 
-router.put('/stores', auth, asyncMiddleware( async (req, res) => {
-    const { error } = validateHouseholdObjectId(req.body.household);
-    if (error) return res.status(400).send(error.details[0].message);
-    
-    const householdId =  mongoose.Types.ObjectId(req.body.household.household_id);
+router.delete('/member', auth, checkValidHousehold, asyncMiddleware( async (req, res) => {
+    const member = {
+        memberId: req.user._id,
+        isAdmin: true
+    };
+    const household = req.household;
+    household.members = household.members.filter(memeber => memeber.memberId.toString() !== req.user._id);
+    await household.save();
+    res.send("Successfully left the household.");
+}));
 
-    let household = await Household.findOne({_id: householdId});
-    if (!household) return res.status(400).send('Household does not exist.');
+router.put('/stores', auth, checkValidHousehold, asyncMiddleware( async (req, res) => {
+    const household = req.household;
 
     if (!household.members.find(member => member.memberId.toString() === req.user._id.toString())) {
         res.status(400).send('User is not a member of this Household');
     }
-
+    
     
     const store = req.body.store;
     const { error: storeError } = validateStoreName(store);
@@ -109,20 +107,13 @@ router.put('/stores', auth, asyncMiddleware( async (req, res) => {
     res.send(_.pick(household, ['stores']));
 }));
 
-router.delete('/stores', auth, asyncMiddleware( async (req, res) => {
-    const { error } = validateHouseholdObjectId(req.body.household);
-    if (error) return res.status(400).send(error.details[0].message);
-    
-    const householdId =  mongoose.Types.ObjectId(req.body.household.household_id);
-
-    let household = await Household.findOne({_id: householdId});
-    if (!household) return res.status(400).send('Household does not exist.');
+router.delete('/stores', auth, checkValidHousehold, asyncMiddleware( async (req, res) => {
+    const household = req.household;
 
     if (!household.members.find(member => member.memberId.toString() === req.user._id.toString())) {
         return res.status(400).send('User is not a member of this Household');
     }
 
-    
     const store = req.body.store;
     const { error: storeError } = validateStoreName(store);
     if (storeError) return res.status(400).send(storeError.details[0].message);
